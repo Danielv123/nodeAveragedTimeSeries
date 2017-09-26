@@ -1,0 +1,32 @@
+{
+  "name": "averaged-timeseries",
+  "version": "1.0.1",
+  "description": "Lightweight in memory averaged timeseries library for aggregating simple fuzzy stats for charts and non critical use",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- \"./{,!(node_modules)/**/}*.spec.js\" -R spec || echo ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Danielv123/nodeAveragedTimeSeries.git"
+  },
+  "keywords": [
+    "timeseries",
+    "inmemory",
+    "temporary",
+    "average",
+    "database"
+  ],
+  "author": "Danielv123",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Danielv123/nodeAveragedTimeSeries/issues"
+  },
+  "homepage": "https://github.com/Danielv123/nodeAveragedTimeSeries#readme",
+  "dependencies": {
+    "assert": "^1.4.1",
+    "documentation": "^5.3.2",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.5.3"
+  }
+}
