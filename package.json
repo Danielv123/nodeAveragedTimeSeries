@@ -4,7 +4,9 @@
   "description": "Lightweight in memory averaged timeseries library for aggregating simple fuzzy stats for charts and non critical use",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- \"./{,!(node_modules)/**/}*.spec.js\" -R spec || echo ."
+    "test": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- \"./{,!(node_modules)/**/}*.spec.js\" -R spec || echo .",
+	"prepublishOnly": "documentation readme index.js --section api",
+	"version": "git add . && git commit -m \"Bumped version\""
   },
   "repository": {
     "type": "git",
