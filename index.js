@@ -64,7 +64,7 @@ module.exports = function(options, log){
 		}
 		if(isNaN(Number(entry.value))) throw "ERROR: entry.value is NaN!";
 		
-		let currentIndex = getCurrentIndex(Date.now());
+		let currentIndex = this.getCurrentIndex(Date.now());
 		let currentEntry = this.data[entry.key][currentIndex];
 		if(currentEntry && !isNaN(Number(currentEntry))){
 			this.data[entry.key][currentIndex] = Number(currentEntry) + Number(entry.value);
@@ -102,8 +102,7 @@ module.exports = function(options, log){
 		
 		if(datapoints > options.maxEntries) throw "ERROR: Argument 1 datapoints is out of bounds!"
 		
-		let originIndex = getOriginIndex(datapoints);
-		let currentIndex = getCurrentIndex(Date.now());
+		let currentIndex = this.getCurrentIndex(Date.now());
 		let readyObject = [];
 		for(let i = currentIndex - datapoints; i < currentIndex; i++){
 			let o = i;
