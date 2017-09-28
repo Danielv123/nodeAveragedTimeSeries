@@ -1,6 +1,6 @@
 {
   "name": "averaged-timeseries",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Lightweight in memory averaged timeseries library for aggregating simple fuzzy stats for charts and non critical use",
   "main": "index.js",
   "scripts": {
