@@ -111,18 +111,29 @@ module.exports = function(options, log){
 		if(!this.data[key]){
 			this.data[key] = new Array(options.maxEntries);
 		}
+		let Yaxis = 0;
 		for(let i = currentIndex - datapoints; i < currentIndex; i++){
 			let o = i;
 			if(i < 0){
 				o = i + options.maxEntries;
 			}
 			readyObject.push({
+				x: this.data[key][o],
+				y: Yaxis++,
+			});
+			/*
+			readyObject.push({
 				key:key,
 				value:this.data[key][o]
-			});
+			});*/
 			
 		}
-		return readyObject;
+		let xyz = {};
+		xyz.name = key;
+		xyz.type = "line";
+		xyz.dataPoints = chartData;
+		return xyz;
+		//return readyObject;
 	}
 	/**
 	 * Clears all data
