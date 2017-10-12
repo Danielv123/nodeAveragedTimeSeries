@@ -118,7 +118,7 @@ module.exports = function(options, log){
 				o = i + options.maxEntries;
 			}
 			readyObject.push({
-				y: this.data[key][o],
+				y: this.data[key][o] || 0,
 				x: Yaxis++,
 			});
 			/*
