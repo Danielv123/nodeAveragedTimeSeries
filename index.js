@@ -131,7 +131,7 @@ module.exports = function(options, log){
 		let xyz = {};
 		xyz.name = key;
 		xyz.type = "line";
-		xyz.dataPoints = chartData;
+		xyz.dataPoints = readyObject;
 		return xyz;
 		//return readyObject;
 	}
