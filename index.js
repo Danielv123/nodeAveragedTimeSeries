@@ -67,6 +67,9 @@ module.exports = function(options, log){
 		
 		let currentIndex = this.getCurrentIndex(Date.now());
 		let currentEntry = this.data[entry.key][currentIndex];
+		if(!this.data[key]){
+			this.data[key] = new Array(options.maxEntries);
+		}
 		if(currentEntry && !isNaN(Number(currentEntry))){
 			this.data[entry.key][currentIndex] = Number(currentEntry) + Number(entry.value);
 			
@@ -105,6 +108,9 @@ module.exports = function(options, log){
 		
 		let currentIndex = this.getCurrentIndex(Date.now());
 		let readyObject = [];
+		if(!this.data[key]){
+			this.data[key] = new Array(options.maxEntries);
+		}
 		for(let i = currentIndex - datapoints; i < currentIndex; i++){
 			let o = i;
 			if(i < 0){
