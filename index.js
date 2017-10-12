@@ -32,13 +32,14 @@ module.exports = function(options, log){
 	} else {
 		this.data = {};
 	}
+	let data = this.data;
 	/**
 	* Get current index in datastore array
 	* @private
 	* @param {number} date Unix epoch time in ms returned from Date.now();
 	* @returns {number} index Current index in this.data
 	*/
-	this.getCurrentIndex = function(date){
+	this.getCurrentIndex = (date) => {
 		return Math.floor( date * options.entriesPerSecond / 1000 ) % options.maxEntries;
 	}
 	/**
@@ -53,7 +54,7 @@ module.exports = function(options, log){
 	 * 
 	 * @param {object} entry
 	*/
-	this.add = function(entry){
+	this.add = (entry) => {
 		/* {
 			key: "string",
 			value: 134,
@@ -94,7 +95,7 @@ module.exports = function(options, log){
 	 * 
 	 * @returns {array} of objects like [{key: "string", value: number}]
 	*/
-	this.get = function(datapoints, key){ // to defaults to Date.now
+	this.get = (datapoints, key) => { // to defaults to Date.now
 		if(typeof datapoints != "number"){
 			throw "ERROR: Argument 1 is not a number!";
 		}
@@ -120,7 +121,7 @@ module.exports = function(options, log){
 	/**
 	 * Clears all data
 	*/
-	this.clear = function(){
+	this.clear = () => {
 		this.data = [];
 	}
 }
