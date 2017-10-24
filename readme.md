@@ -12,7 +12,11 @@ In memory timeseries database with averaged/summed values to reduce performance 
 
 **Parameters**
 
--   `options` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options object, can be left as blank to use defaults, see index.spec.js for details
+-   `options` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)?** Options object, can be left as blank to use defaults, see index.spec.js for details
+    -   `options.maxEntries` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)?** how many entries to store in the timeseries, defaults to 3600
+    -   `options.entriesPerSecond` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)?** how many times a second to move the timeseries, default 1, can be less than 1 for slower updates
+    -   `options.mergeMode` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)?** how to merge multiple entries in one tick, default is "average"
+    -   `options.data` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)?** starting data for timeSeries, defaults to {}
 -   `log` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** Logging function, can be left as undefined for no logging
 
 Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** timeSeries
@@ -20,6 +24,7 @@ Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refer
 **Meta**
 
 -   **author**: Daniel Vestøl
+-   **license**: MIT
 
 ### add
 
@@ -28,6 +33,8 @@ Adds timeseries data to a collection
 **Parameters**
 
 -   `entry` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+    -   `entry.key` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** what item to add
+    -   `entry.value` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** how much to add
 
 **Examples**
 
@@ -53,3 +60,9 @@ Returns **[array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refere
 ### clear
 
 Clears all data
+
+**Examples**
+
+```javascript
+new timeSeries().clear()
+```
