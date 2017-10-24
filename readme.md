@@ -12,7 +12,7 @@ In memory timeseries database with averaged/summed values to reduce performance 
 
 **Parameters**
 
--   `options` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options object, can be left as blank to use defaults
+-   `options` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options object, can be left as blank to use defaults, see index.spec.js for details
 -   `log` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** Logging function, can be left as undefined for no logging
 
 Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** timeSeries

@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- \"./{,!(node_modules)/**/}*.spec.js\" -R spec || echo .",
+	"docs": "documentation build index.js -f html -o docs",
+	"livedocs": "documentation serve --watch index.js",
     "prepublishOnly": "documentation readme index.js --section api"
   },
   "repository": {

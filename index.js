@@ -1,9 +1,15 @@
 /** 
 In memory timeseries database with averaged/summed values to reduce performance footprint
 @author       Daniel Vestøl
+@license	  MIT
 
 @constructor
-@param {object} options Options object, can be left as blank to use defaults, see index.spec.js for details
+@param {object} [options] Options object, can be left as blank to use defaults, see index.spec.js for details
+@param {number} [options.maxEntries] how many entries to store in the timeseries, defaults to 3600
+@param {number} [options.entriesPerSecond] how many times a second to move the timeseries, default 1, can be less than 1 for slower updates
+@param {string} [options.mergeMode] how to merge multiple entries in one tick, default is "average"
+@param {object} [options.data] starting data for timeSeries, defaults to {}
+
 @param {function} [log] Logging function, can be left as undefined for no logging
 @returns {object} timeSeries
 */
@@ -36,7 +42,7 @@ module.exports = function(options, log){
 	/**
 	* Get current index in datastore array
 	* @private
-	* @param {number} date Unix epoch time in ms returned from Date.now();
+	* @param {Date} date Unix epoch time in ms returned from Date.now();
 	* @returns {number} index Current index in this.data
 	*/
 	this.getCurrentIndex = (date) => {
@@ -44,7 +50,7 @@ module.exports = function(options, log){
 	}
 	/**
 	 * Adds timeseries data to a collection
-	 * 
+	 * @public
 	 * @example
 	 * let series = new timeSeries();
 	 * series.add({
@@ -53,6 +59,8 @@ module.exports = function(options, log){
 	 * });
 	 * 
 	 * @param {object} entry
+	 * @param {string} entry.key what item to add
+	 * @param {number} entry.value how much to add
 	*/
 	this.add = (entry) => {
 		/* {
@@ -120,6 +128,10 @@ module.exports = function(options, log){
 	}
 	/**
 	 * Clears all data
+	 * @public
+	 * 
+	 * @example
+	 * new timeSeries().clear()
 	*/
 	this.clear = () => {
 		this.data = [];
