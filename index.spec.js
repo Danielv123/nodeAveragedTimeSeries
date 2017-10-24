@@ -14,7 +14,7 @@ describe("index.js", function(){
 		let series = new timeSeries({
 			maxEntries:20,
 			entriesPerSecond:10,
-			mergeMode: "add",
+			mergeMode: "average",
 		});
 		
 		// generate some data
@@ -23,27 +23,49 @@ describe("index.js", function(){
 		setTimeout(()=>{
 			series.add({key:"testThing", value:14});
 			series.add({key:"testThing", value:11});
+			series.add({key:"testThing", value:20});
 			let data = series.get(20, "testThing")
 			// console.log(data);
 			
-			let hasEntryWithValueOf9 = false;
-			let hasEntryWithValueOf25 = false;
-			data.forEach((entry)=>{
-				if(entry.value == 9){
-					hasEntryWithValueOf9 = true;
+			let hasEntryWithValueOf4point5 = false;
+			let hasEntryWithValueOf15 = false;
+			data.dataPoints.forEach((entry)=>{
+				if(entry.y == 4.5){
+					hasEntryWithValueOf4point5 = true;
 				}
-				if(entry.value == 25){
-					hasEntryWithValueOf25 = true;
+				if(entry.y == 15){
+					hasEntryWithValueOf15 = true;
 				}
 			});
-			assert(hasEntryWithValueOf9, "One of the returned entries should have a value of 9");
-			assert(hasEntryWithValueOf25, "One of the returned entries should have a value of 25");
+			assert(hasEntryWithValueOf4point5, "One of the returned entries should have a value of 4.5");
+			assert(hasEntryWithValueOf15, "One of the returned entries should have a value of 15");
 			
 			series.clear();
 			assert.deepEqual(series.data, []);
 			
 			done();
 		}, 200);
+	});
+	it("automatically expires data after some time", function(done){
+		let series = new timeSeries({
+			maxEntries:1,
+			entriesPerSecond:10,
+			mergeMode: "average",
+		});
+		
+		// generate some data
+		series.add({key:"testThing", value:5});
+		
+		// verify data is there
+		let data = series.get(1, "testThing").dataPoints;
+		assert(data[0].y == 5, "Data is not being stored correctly, expected to find 5");
+		
+		setTimeout(x=>{
+			data = series.get(1, "testThing").dataPoints;
+			assert(data[0].y == 0, "Data is not being erased, expected to find 0");
+		
+			done();
+		},110);
 	});
 	it("throws if the first argument isn't an options object", function(){
 		assert.throws(function(){

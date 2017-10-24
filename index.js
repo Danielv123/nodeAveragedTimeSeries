@@ -3,7 +3,7 @@ In memory timeseries database with averaged/summed values to reduce performance 
 @author       Daniel Vestøl
 
 @constructor
-@param {object} options Options object, can be left as blank to use defaults
+@param {object} options Options object, can be left as blank to use defaults, see index.spec.js for details
 @param {function} [log] Logging function, can be left as undefined for no logging
 @returns {object} timeSeries
 */
@@ -13,7 +13,7 @@ module.exports = function(options, log){
 	/* {
 		maxEntries: 100, // how long to store data before purging in ms
 		entriesPerSecond: 2, // add up to not be too large
-		mergeMode: "add", // how to merge entries that happens in the same "tick"
+		mergeMode: "average", // how to merge entries that happens in the same "tick"
 		data:{}
 	}
 	*/
@@ -22,7 +22,7 @@ module.exports = function(options, log){
 	if(typeof options != "object"){
 		throw "ERROR: argument 1 should be an object with options";
 	}
-	if(!options.mergeMode) options.mergeMode = "add";
+	if(!options.mergeMode) options.mergeMode = "average";
 	if(!options.entriesPerSecond) options.entriesPerSecond = 1;
 	if(!options.maxEntries) options.maxEntries = 3600; // default to provide an hour of stats
 	this.options = options;
@@ -40,7 +40,7 @@ module.exports = function(options, log){
 	* @returns {number} index Current index in this.data
 	*/
 	this.getCurrentIndex = (date) => {
-		return Math.floor( date * options.entriesPerSecond / 1000 ) % options.maxEntries;
+		return Math.floor( date * options.entriesPerSecond / 1000 );
 	}
 	/**
 	 * Adds timeseries data to a collection
@@ -60,35 +60,22 @@ module.exports = function(options, log){
 			value: 134,
 		}
 		*/
-		if(typeof entry.key == "string" && !this.data[entry.key]){
-			this.data[entry.key] = [];
-		}
-		if(isNaN(Number(entry.value))) throw "ERROR: entry.value is NaN!";
-		
-		let currentIndex = this.getCurrentIndex(Date.now());
-		let currentEntry = this.data[entry.key][currentIndex];
-		if(!this.data[entry.key]){
-			this.data[entry.key] = new Array(options.maxEntries);
-		}
-		if(currentEntry && !isNaN(Number(currentEntry))){
-			this.data[entry.key][currentIndex] = Number(currentEntry) + Number(entry.value);
+		// input validation
+		if(typeof entry.key == "string" && isNumber(entry.value)){
 			
-			// clear next index
-			if(currentIndex < options.maxEntries){
-				this.data[entry.key][currentIndex+1];
-			} else {
-				this.data[entry.key][0];
+			if(!this.data[entry.key]){
+				this.data[entry.key] = new Array(options.maxEntries);
 			}
-		} else {
-			this.data[entry.key][currentIndex] = Number(entry.value);
 			
-			// clear next index
-			if(currentIndex < options.maxEntries){
-				this.data[entry.key][currentIndex+1];
-			} else {
-				this.data[entry.key][0];
-			}
-		}
+			let currentIndex = this.getCurrentIndex(Date.now());
+			let currArray = this.data[entry.key];
+			ensureDatastoreIsReady(entry.key, this);
+			
+			// actually update our database with a new average
+			currArray.numberOfEntries++
+			currArray.valueOfEntries += Number(entry.value);
+			currArray[currArray.length-1] = currArray.valueOfEntries / currArray.numberOfEntries;
+		} else throw new Error("Invalid input entry, check that key is a string and value is a value")
 	}
 	/**
 	 * Retrieves timeseries data
@@ -100,45 +87,66 @@ module.exports = function(options, log){
 	*/
 	this.get = (datapoints, key) => { // to defaults to Date.now
 		if(typeof datapoints != "number"){
-			throw "ERROR: Argument 1 is not a number!";
+			throw new Error("ERROR: Argument 1 is not a number!");
 		}
 		let to = Date.now();
 		
-		if(datapoints > options.maxEntries) throw "ERROR: Argument 1 datapoints is out of bounds!"
+		if(datapoints > options.maxEntries) throw new Error("ERROR: Argument 1 datapoints is out of bounds!");
 		
-		let currentIndex = this.getCurrentIndex(Date.now());
-		let readyObject = [];
 		if(!this.data[key]){
 			this.data[key] = new Array(options.maxEntries);
 		}
-		let Yaxis = 0;
-		for(let i = currentIndex - datapoints; i < currentIndex; i++){
+		ensureDatastoreIsReady(key, this);
+		
+		let chartDataPoints = [];
+		let Xaxis = 0;
+		for(let i = this.data[key].length - datapoints; i < this.data[key].length; i++){
 			let o = i;
 			if(i < 0){
 				o = i + options.maxEntries;
 			}
-			readyObject.push({
+			chartDataPoints.push({
 				y: this.data[key][o] || 0,
-				x: Yaxis++,
+				x: Xaxis++,
 			});
-			/*
-			readyObject.push({
-				key:key,
-				value:this.data[key][o]
-			});*/
 			
 		}
 		let xyz = {};
 		xyz.name = key;
 		xyz.type = "line";
-		xyz.dataPoints = readyObject;
+		xyz.dataPoints = chartDataPoints;
 		return xyz;
-		//return readyObject;
+		//return chartDataPoints;
 	}
 	/**
 	 * Clears all data
 	*/
 	this.clear = () => {
 		this.data = [];
+	}
+}
+
+function isNumber(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+function ensureDatastoreIsReady(key, that){
+	let currentIndex = that.getCurrentIndex(Date.now());
+	let currArray = that.data[key];
+	
+	if(!currArray.lastIndex) {
+		// we are preparing a new database for a new key, add some stuff
+		currArray.lastIndex = currentIndex;
+		currArray.numberOfEntries = 0;
+		currArray.valueOfEntries = 0;
+	}	 
+	if(currArray.lastIndex != currentIndex){
+		// We are now working on averages for a new entry, shift the old ones and push a new entry
+		for(let i = 0; i < currentIndex - currArray.lastIndex; i++){
+			currArray.shift();
+			currArray.push(undefined);
+		}
+		currArray.numberOfEntries = 0;
+		currArray.valueOfEntries = 0;
+		currArray.lastIndex = currentIndex;
 	}
 }
