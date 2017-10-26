@@ -19,7 +19,7 @@ module.exports = function(options, log){
 	/* {
 		maxEntries: 100, // how long to store data before purging in ms
 		entriesPerSecond: 2, // add up to not be too large
-		mergeMode: "average", // how to merge entries that happens in the same "tick"
+		mergeMode: "average", // OR "add", how to merge entries that happens in the same "tick"
 		data:{}
 	}
 	*/
@@ -80,7 +80,11 @@ module.exports = function(options, log){
 			ensureDatastoreIsReady(entry.key, this);
 			
 			// actually update our database with a new average
-			currArray.numberOfEntries++
+			if(this.options.mergeMode == "average"){
+				currArray.numberOfEntries++;
+			} else if(this.options.mergeMode == "add"){
+				currArray.numberOfEntries = 1;
+			}
 			currArray.valueOfEntries += Number(entry.value);
 			currArray[currArray.length-1] = currArray.valueOfEntries / currArray.numberOfEntries;
 		} else throw new Error("Invalid input entry, check that key is a string and value is a value")

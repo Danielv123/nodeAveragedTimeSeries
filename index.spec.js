@@ -10,7 +10,7 @@ describe("index.js", function(){
 		assert(typeof series.clear == "function");
 		assert.deepEqual(series.data, {}, "Should be an empty object")
 	});
-	it("stores data", function(done){
+	it("stores data with mergeMode \"average\"", function(done){
 		let series = new timeSeries({
 			maxEntries:20,
 			entriesPerSecond:10,
@@ -39,6 +39,42 @@ describe("index.js", function(){
 			});
 			assert(hasEntryWithValueOf4point5, "One of the returned entries should have a value of 4.5");
 			assert(hasEntryWithValueOf15, "One of the returned entries should have a value of 15");
+			
+			series.clear();
+			assert.deepEqual(series.data, []);
+			
+			done();
+		}, 200);
+	});
+	it("stores data with mergeMode \"add\"", function(done){
+		let series = new timeSeries({
+			maxEntries:20,
+			entriesPerSecond:10,
+			mergeMode: "add",
+		});
+		
+		// generate some data
+		series.add({key:"testThing", value:5});
+		series.add({key:"testThing", value:4});
+		setTimeout(()=>{
+			series.add({key:"testThing", value:14});
+			series.add({key:"testThing", value:11});
+			series.add({key:"testThing", value:20});
+			let data = series.get(20, "testThing")
+			// console.log(data);
+			
+			let hasEntryWithValueOf9 = false;
+			let hasEntryWithValueOf45 = false;
+			data.dataPoints.forEach((entry)=>{
+				if(entry.y == 9){
+					hasEntryWithValueOf9 = true;
+				}
+				if(entry.y == 45){
+					hasEntryWithValueOf45 = true;
+				}
+			});
+			assert(hasEntryWithValueOf9, "One of the returned entries should have a value of 9");
+			assert(hasEntryWithValueOf45, "One of the returned entries should have a value of 45");
 			
 			series.clear();
 			assert.deepEqual(series.data, []);
